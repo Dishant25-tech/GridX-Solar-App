@@ -3,53 +3,45 @@ package com.example.gridx_solar
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.example.gridx_solar.ui.alerts.AlertsScreen
-import com.example.gridx_solar.ui.dashboard.DashboardScreen
-import com.example.gridx_solar.ui.help.HelpScreen
-import com.example.gridx_solar.ui.login.LoginScreen
-import com.example.gridx_solar.ui.reports.ReportsScreen
-import com.example.gridx_solar.ui.navigation.BottomNavBar
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.gridx_solar.ui.theme.GridXSolarTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContent {
             GridXSolarTheme {
-                MainApp()
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    Greeting(
+                        name = "Android",
+                        modifier = Modifier.padding(innerPadding)
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun MainApp() {
-    var isLoggedIn by remember { mutableStateOf(false) }
-    var selectedIndex by remember { mutableStateOf(0) }
+fun Greeting(name: String, modifier: Modifier = Modifier) {
+    Text(
+        text = "Hello $name!",
+        modifier = modifier
+    )
+}
 
-    if (!isLoggedIn) {
-        LoginScreen(onLogin = { isLoggedIn = true })
-    } else {
-        Scaffold(
-            bottomBar = {
-                BottomNavBar(
-                    selectedIndex = selectedIndex,
-                    onItemSelected = { selectedIndex = it }
-                )
-            }
-        ) { padding ->
-            Box(modifier = Modifier.padding(padding)) {
-                when (selectedIndex) {
-                    0 -> DashboardScreen()
-                    1 -> AlertsScreen()
-                    2 -> ReportsScreen()
-                    3 -> HelpScreen()
-                }
-            }
-        }
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    GridXSolarTheme {
+        Greeting("Android")
     }
 }
