@@ -1,16 +1,17 @@
-package com.example.gridx_solar.ui.`login`
-
-
+package com.example.gridx_solar.ui.login
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -31,7 +32,6 @@ fun LoginScreen(onLogin: () -> Unit = {}) {
 
         Spacer(Modifier.height(48.dp))
 
-        // 🔹 LOGO PLACEHOLDER
         Text(
             text = "GRIDX",
             fontSize = 28.sp,
@@ -40,7 +40,6 @@ fun LoginScreen(onLogin: () -> Unit = {}) {
 
         Spacer(Modifier.height(32.dp))
 
-        // 🔹 USER TYPE CARD
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = Color(0xFFE0E0E0)),
@@ -74,12 +73,12 @@ fun LoginScreen(onLogin: () -> Unit = {}) {
 
         Spacer(Modifier.height(20.dp))
 
-        // 🔹 USER ID FIELD
         OutlinedTextField(
             value = userId,
             onValueChange = { userId = it },
             placeholder = { Text("user_id") },
             modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
                 unfocusedContainerColor = Color(0xFFE0E0E0),
                 focusedContainerColor = Color(0xFFE0E0E0),
@@ -91,12 +90,14 @@ fun LoginScreen(onLogin: () -> Unit = {}) {
 
         Spacer(Modifier.height(12.dp))
 
-        // 🔹 PASSWORD FIELD
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
             placeholder = { Text("password") },
             modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             colors = OutlinedTextFieldDefaults.colors(
                 unfocusedContainerColor = Color(0xFFE0E0E0),
                 focusedContainerColor = Color(0xFFE0E0E0),
@@ -108,9 +109,12 @@ fun LoginScreen(onLogin: () -> Unit = {}) {
 
         Spacer(Modifier.height(24.dp))
 
-        // 🔹 LOGIN BUTTON
         Button(
-            onClick = onLogin,
+            onClick = {
+                if (userId.isNotBlank() && password.isNotBlank()) {
+                    onLogin()
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
