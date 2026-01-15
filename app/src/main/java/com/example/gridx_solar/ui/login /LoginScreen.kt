@@ -1,4 +1,6 @@
-package com.example.gridx_solar.ui.`login `
+package com.example.gridx_solar.ui.`login`
+
+
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
