@@ -8,8 +8,8 @@ import androidx.compose.ui.unit.dp
 import com.example.gridx_solar.ui.theme.*
 
 @Composable
-fun AlertsScreen() {
-    Column(Modifier.fillMaxSize().padding(16.dp)) {
+fun AlertsScreen(modifier: Modifier = Modifier) {
+    Column(modifier.fillMaxSize().padding(16.dp)) {
 
         AlertCard(
             title = "Cloudy Weather Today",
