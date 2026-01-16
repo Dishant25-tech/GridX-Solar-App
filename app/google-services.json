@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "800131068545",
+    "project_id": "gridx-solar-app",
+    "storage_bucket": "gridx-solar-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:800131068545:android:bd64af327300ac7eb3d380",
+        "android_client_info": {
+          "package_name": "com.example.gridx_solar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWMFjFLvGv2JUnSwvAtwnELi9IBBCpem4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

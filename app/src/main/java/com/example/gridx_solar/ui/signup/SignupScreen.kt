@@ -1,4 +1,4 @@
-package com.example.gridx_solar.ui.login
+package com.example.gridx_solar.ui.signup
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -17,16 +17,20 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 @Composable
-fun LoginScreen(
-    onLoginSuccess: () -> Unit,
-    onGoToSignup: () -> Unit
+fun SignupScreen(
+    onSignup: () -> Unit,
+    onGoToLogin: () -> Unit
 ) {
     val context = LocalContext.current
     val auth = FirebaseAuth.getInstance()
+    val db = Firebase.firestore
 
-    var selectedUser by remember { mutableStateOf("Government") }
+    var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
@@ -41,50 +45,17 @@ fun LoginScreen(
     ) {
 
         Text(
-            text = "GRIDX",
+            text = "Create Account",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold
         )
 
         Spacer(Modifier.height(32.dp))
 
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFE0E0E0)),
-            shape = RoundedCornerShape(6.dp)
-        ) {
-            Column(Modifier.padding(16.dp)) {
-                Text(
-                    text = "Select User Type",
-                    fontWeight = FontWeight.SemiBold
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    RadioButton(
-                        selected = selectedUser == "Government",
-                        onClick = { selectedUser = "Government" }
-                    )
-                    Text("Government")
-
-                    Spacer(Modifier.width(16.dp))
-
-                    RadioButton(
-                        selected = selectedUser == "Private",
-                        onClick = { selectedUser = "Private" }
-                    )
-                    Text("Private Operator")
-                }
-            }
-        }
-
-        Spacer(Modifier.height(20.dp))
-
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            placeholder = { Text("Email") },
+            value = name,
+            onValueChange = { name = it },
+            placeholder = { Text("Name") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
@@ -99,9 +70,27 @@ fun LoginScreen(
         Spacer(Modifier.height(12.dp))
 
         OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            placeholder = { Text("Email") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedContainerColor = Color(0xFFE0E0E0),
+                focusedContainerColor = Color(0xFFE0E0E0),
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent
+            ),
+            shape = RoundedCornerShape(4.dp)
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            placeholder = { Text("Password") },
+            placeholder = { Text("Password (min 6 characters)") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
@@ -119,25 +108,48 @@ fun LoginScreen(
 
         Button(
             onClick = {
-                if (email.isNotBlank() && password.isNotBlank()) {
-                    isLoading = true
-                    auth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener { task ->
-                            isLoading = false
-                            if (task.isSuccessful) {
-                                Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT).show()
-                                onLoginSuccess()
-                            } else {
-                                Toast.makeText(
-                                    context,
-                                    task.exception?.message ?: "Login failed.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-                } else {
+                if (name.isBlank() || email.isBlank() || password.isBlank()) {
                     Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                    return@Button
                 }
+
+                if (password.length < 6) {
+                    Toast.makeText(context, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show()
+                    return@Button
+                }
+
+                isLoading = true
+                auth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            val uid = auth.currentUser?.uid ?: ""
+                            val user = hashMapOf(
+                                "uid" to uid,
+                                "name" to name,
+                                "email" to email,
+                                "role" to "user",
+                                "createdAt" to FieldValue.serverTimestamp()
+                            )
+
+                            db.collection("users").document(uid).set(user)
+                                .addOnSuccessListener {
+                                    isLoading = false
+                                    Toast.makeText(context, "Signup successful!", Toast.LENGTH_SHORT).show()
+                                    onSignup()
+                                }
+                                .addOnFailureListener { e ->
+                                    isLoading = false
+                                    Toast.makeText(context, e.message ?: "Failed to save user", Toast.LENGTH_SHORT).show()
+                                }
+                        } else {
+                            isLoading = false
+                            Toast.makeText(
+                                context,
+                                task.exception?.message ?: "Signup failed.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -152,7 +164,7 @@ fun LoginScreen(
                 CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
             } else {
                 Text(
-                    text = "Login",
+                    text = "Sign Up",
                     color = Color.White,
                     fontSize = 16.sp
                 )
@@ -161,8 +173,8 @@ fun LoginScreen(
 
         Spacer(Modifier.height(12.dp))
 
-        TextButton(onClick = onGoToSignup) {
-            Text("Don't have an account? Sign up")
+        TextButton(onClick = onGoToLogin) {
+            Text("Already have an account? Login")
         }
     }
 }
